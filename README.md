@@ -1,14 +1,5 @@
-# Project
-
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
-
-As the maintainer of this project, please make a few updates:
-
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+# DNATagging
+An implementation of data encoding and decoding using DNA Tags and paper tickets. The [api](api) directory contains implementations for REST API endpoints to enable a DNA Tagging application. The [test](test) directory contains configurations and tests for the APIs and underlying logic for decoding tags from reporter tickets.
 
 ## Contributing
 

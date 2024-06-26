@@ -1,0 +1,9 @@
+# Requirements for file formatting during development
+black==22.6.0
+flake8==5.0.3
+
+# Requirements for running the Azure functions
+-r api/requirements.txt
+
+# Requirements for running the test suite
+-r test/requirements.txt
