@@ -1,5 +1,5 @@
 # Requirements for file formatting during development
-black==22.6.0
+black==24.3.0
 flake8==5.0.3
 
 # Requirements for running the Azure functions
