@@ -1,68 +1,54 @@
 import os
-from typing import Iterable
 
-import numpy as np
-from numpy import genfromtxt, ndarray
+import pytest
+from numpy import genfromtxt
 
+test_dir = os.path.dirname(os.path.realpath(__file__))
+img_dir = os.path.join(test_dir, "images")
+
+# This collects all subdirectories in the images directory
+subdirs = next(os.walk(img_dir))[1]
 
 class TestData:
-    def __init__(
-        self,
-        before_path: str,
-        after_path: str,
-        test_name: str,
-        expected: ndarray,
-        replace_xn: bool = True,
-    ):
-        self.before_path: str = before_path
-        self.after_path: str = after_path
-        self.test_name: str = test_name
-        self.expected: ndarray = expected
-        self.replace_xn = replace_xn
+    def __init__(self, test_name):
+        self.test_name = test_name
+        self.before_path = None
+        self.after_path = None
+        self.expected = None
 
-
-def get_image_data(img_dir, replace_xn) -> Iterable[TestData]:
-    """Return the path of all jpg images located at any level under img_dir
-
-    Args:
-        img_dir: the directory to crawl for sets of files in the form
-                 of (before.jpg, after.jpg, expected.csv)
-        replace_xn: where or not to replace 'x' and 'n' characters in
-                    the expected result with '0'
-
-    Returns:
-        Yields a single TestData which will lazily load data into memory
-    """
-    test_dir = os.path.dirname(os.path.realpath(__file__))
-    img_dir = os.path.join(test_dir, img_dir)
-    for dirpath, _, filenames in os.walk(img_dir):
-        if not filenames:
-            continue
+    def load_data(self):
         img_paths = []
         csv = None
-        error_file = None
-        for filename in filenames:
-            path = os.path.join(dirpath, filename)
-            if str.lower(filename).endswith(".jpg"):
+        test_path = os.path.join(img_dir, self.test_name)
+        for file in os.listdir(test_path):
+            path = os.path.join(test_path, file)
+            if str.lower(file).endswith(".jpg"):
                 img_paths.append(path)
             else:
-                if "Errors" in filename:
-                    error_file = path
-                elif "Decay" not in filename:
+                if "Codeword" in file:
                     csv = path
-        if len(img_paths) >= 2 and csv is not None and error_file is not None:
-            # rely on lexicographical ordering unless otherwise labeled
-            before = img_paths[0]
-            after = img_paths[1]
+                elif "Decay" not in file and "Errors" not in file:
+                    csv = path
 
-            # check if the images are labeled "before" and "after"
-            lower = img_paths[0].lower()
-            if "after" in lower:
-                after = img_paths[0]
-                before = img_paths[1]
-            expected = genfromtxt(csv, delimiter=",", dtype=str)
-            yield TestData(before, after, dirpath.split(os.sep)[-1], expected, replace_xn)
+        # rely on lexicographical ordering unless otherwise labeled
+        self.before_path = img_paths[0]
+        self.after_path = img_paths[1]
 
+        # check if the images are labeled "before" and "after"
+        lower = img_paths[0].lower()
+        if "after" in lower:
+            self.after_path = img_paths[0]
+            self.before_path = img_paths[1]
+        self.expected = genfromtxt(csv, delimiter=",", dtype=str)
+
+
+@pytest.fixture(scope="session")
+def get_test_data():
+    def _get_test_data(test_name):
+        test_data = TestData(test_name)
+        test_data.load_data()
+        return test_data
+    return _get_test_data
 
 def check_decoding(matrix, expected_values):
     """Determine the positions in which matrix and true_matrix differ

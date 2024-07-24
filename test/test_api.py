@@ -3,7 +3,8 @@ import mimetypes
 import urllib.parse
 import uuid
 from codecs import encode
-from test.TestData import get_image_data
+import pytest
+from test.TestData import get_test_data, subdirs
 
 from api import decode as dna_decode
 from api import encode as dna_encode
@@ -13,6 +14,7 @@ from azure.functions import HttpRequest
 """
 Tests to ensure API endpoints are functioning as expected.
 """
+
 
 def test_dna_encode():
     """Test that the encode function returns a valid bit string and
@@ -48,10 +50,11 @@ def test_dna_encode():
     assert response_id == input_id
 
 
-def test_dna_decode():
+@pytest.mark.parametrize("test_case", [subdirs[0]])
+def test_dna_decode(get_test_data, test_case):
     """Test that the response for a query is successful and returns an int id"""
-    test_case = next(get_image_data("images", False))
-    headers, body = generate_payload(test_case)
+    test_data = get_test_data(test_case)
+    headers, body = generate_payload(test_data)
     api_request = HttpRequest(
         method="POST",
         url="/api/decode",
@@ -65,11 +68,13 @@ def test_dna_decode():
     # ids are stored as ints
     assert isinstance(response_content, int)
 
-def test_get_raw_matrix():
+
+@pytest.mark.parametrize("test_case", [subdirs[0]])
+def test_get_raw_matrix(get_test_data, test_case):
     """Test that the response for a query is successful and returns a list of floats.
     This test checks that the endpoint is functional, not that the response is correct"""
-    test_case = next(get_image_data("images", False))
-    headers, body = generate_payload(test_case)
+    test_data = get_test_data(test_case)
+    headers, body = generate_payload(test_data)
     api_request = HttpRequest(
         method="POST",
         url="/api/get_raw_matrix",
