@@ -1,10 +1,4 @@
 # Testing
-## Pulling images
-Test images are stored in Azure Blob Storage rather than in git. You will need permission to read and list images in the blob storage account to download them. You can pull these images by running ```python download_test_images.py```
-
-This code with will create a new images/ directory in this folder and save the test images there. Images are expected to be in the ```<project_root>/test/images/``` directory.
-
-
 ## Running tests
 You can run tests via VSCode or from the command line. Install the DNATagging project locally with pip using ```pip install -e .```. To run from the command line, simply run ```pytest``` from the project root.
 
